@@ -1,0 +1,25 @@
+[project]
+name = "skill-fit"
+version = "0.1.0"
+description = "MCP che cerca skill e Cursor Rules nelle raccolte indicate"
+readme = "README.md"
+authors = [
+    { name = "Gianpiero", email = "saliceforte@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=2.3.0",
+]
+
+[project.scripts]
+skill-fit = "skill_fit.server:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3.0"]
+
+[build-system]
+requires = ["uv_build>=0.9.30,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

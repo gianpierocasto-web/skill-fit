@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "skill-fit": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "${CURSOR_PLUGIN_ROOT}",
+        "skill-fit"
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "skill-fit",
+  "owner": {
+    "name": "Gianpiero",
+    "email": "saliceforte@gmail.com"
+  },
+  "metadata": {
+    "description": "Cerca skill e Cursor Rules nelle raccolte indicate e installa solo le voci scelte."
+  },
+  "plugins": [
+    {
+      "name": "skill-fit",
+      "source": "./",
+      "description": "Skill e server MCP per trovare una skill o una rule adatta al progetto aperto."
+    }
+  ]
+}
