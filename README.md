@@ -10,6 +10,11 @@ Sul PC serve [uv](https://docs.astral.sh/uv/) nel PATH. Poi, in una chat di Curs
 
 Scegli l'ambito utente. In alternativa, in Customize → Plugins → Import marketplace incolla `https://github.com/gianpierocasto-web/skill-fit`.
 
+Due vincoli, altrimenti su un altro PC il plugin non parte:
+
+- Il branch predefinito è `main`. Cursor risolve `nome@main` e, se esiste solo `master`, scarta il plugin con `Failed to resolve version`.
+- Su Windows il Python gestito da uv può non aprire socket (`WinError 10013`). Il download resta su `urllib` e, solo in quel caso, riprova con `curl.exe`. Non si forza il Python di sistema.
+
 Quattro tool:
 
 - `search_skills` — verdetto (`skill trovate`, `nessuna skill`, `indice non disponibile`) e, per ogni voce, nome, tipo, descrizione, link e raccolta
