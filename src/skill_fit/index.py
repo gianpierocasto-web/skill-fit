@@ -680,15 +680,54 @@ def http_get(url: str, limit: int = CATALOG_BYTES) -> bytes | None:
     host = urllib.parse.urlparse(url).hostname
     if host not in {"api.github.com", "raw.githubusercontent.com"}:
         return None
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"})
+    headers = {"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"}
     token = github_token()
     if token:
-        request.add_header("Authorization", f"Bearer {token}")
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             return response.read(limit)
-    except (urllib.error.URLError, TimeoutError, OSError):
-        return None
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        if not socket_forbidden(exc):
+            return None
+        logger.warning("socket negato a Python, riprovo con curl: %s", exc)
+        try:
+            return curl_bytes(url, headers, 30, limit)
+        except (urllib.error.URLError, TimeoutError, OSError):
+            return None
+
+
+def socket_forbidden(exc: BaseException) -> bool:
+    if getattr(exc, "winerror", None) == 10013:
+        return True
+    reason = getattr(exc, "reason", None)
+    if isinstance(reason, BaseException) and reason is not exc:
+        return socket_forbidden(reason)
+    return False
+
+
+def curl_bytes(url: str, headers: dict[str, str], timeout: int, limit: int) -> bytes:
+    command = [
+        "curl.exe",
+        "--fail",
+        "--silent",
+        "--show-error",
+        "--location",
+        "--max-time",
+        str(timeout),
+    ]
+    for key, value in headers.items():
+        command.extend(["--header", f"{key}: {value}"])
+    command.append(url)
+    try:
+        result = subprocess.run(command, capture_output=True, timeout=timeout + 5)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise urllib.error.URLError(str(exc)) from exc
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", "replace").strip() or f"curl {result.returncode}"
+        raise urllib.error.URLError(detail)
+    return result.stdout[:limit]
 
 
 def github_token() -> str:
